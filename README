@@ -1,0 +1,90 @@
+NAME
+    File::Flock::Retry - Yet another flock module
+
+VERSION
+    This document describes version 0.59 of File::Flock::Retry (from Perl
+    distribution File-Flock-Retry), released on 2014-12-05.
+
+SYNOPSIS
+     use File::Flock::Retry;
+
+     # try to acquire exclusive lock. if fail to acquire lock within 60s, die.
+     my $lock = File::Flock::Retry->lock($file);
+
+     # explicitly unlock
+     $lock->release;
+
+     # automatically unlock if object is DESTROY-ed.
+     undef $lock;
+
+DESCRIPTION
+    This is yet another flock module. It is a more lightweight alternative
+    to File::Flock with some other differences:
+
+    *   OO interface only
+
+    *   Autoretry (by default for 60s) when trying to acquire lock
+
+        I prefer this approach to blocking/waiting indefinitely or failing
+        immediately.
+
+METHODS
+  $lock = File::Flock::Retry->lock($path, \%opts)
+    Attempt to acquire an exclusive lock on $path. $path will be created if
+    not already exists. If $path is already locked by another process, will
+    retry every second for a number of seconds (by default 60). Will die if
+    failed to acquire lock after all retries.
+
+    Will automatically unlock if $lock goes out of scope. Upon unlock, will
+    remove $path if it was created and is still empty (this behavior is the
+    same as "File::Flock").
+
+    Available options:
+
+    *   retries => int (default: 60)
+
+        Number of retries (equals number of seconds, since retry is done
+        every second).
+
+  $lock->unlock
+    Unlock.
+
+  $lock->release
+    Synonym for "unlock()".
+
+CAVEATS
+    Not yet tested on Windows. Some filesystems do not support inode?
+
+SEE ALSO
+    File::Flock
+
+    File::Flock::Tiny which is also tiny, but does not have the autoremove
+    and autoretry capability which I want. See also:
+    https://github.com/trinitum/perl-File-Flock-Tiny/issues/1
+
+    flock() Perl function.
+
+HOMEPAGE
+    Please visit the project's homepage at
+    <https://metacpan.org/release/File-Flock-Retry>.
+
+SOURCE
+    Source repository is at
+    <https://github.com/perlancar/perl-File-Flock-Retry>.
+
+BUGS
+    Please report any bugs or feature requests on the bugtracker website
+    <https://rt.cpan.org/Public/Dist/Display.html?Name=File-Flock-Retry>
+
+    When submitting a bug or request, please include a test-file or a patch
+    to an existing test-file that illustrates the bug or desired feature.
+
+AUTHOR
+    perlancar <perlancar@cpan.org>
+
+COPYRIGHT AND LICENSE
+    This software is copyright (c) 2014 by perlancar@cpan.org.
+
+    This is free software; you can redistribute it and/or modify it under
+    the same terms as the Perl 5 programming language system itself.
+
